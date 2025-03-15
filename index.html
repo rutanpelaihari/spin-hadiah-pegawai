@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spin Hadiah Pegawai Rutan Pelaihari</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Reset CSS */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* Animasi Spin */
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Desain Roulette Wheel */
+    .roulette-wheel {
+      position: relative;
+      width: 250px;
+      height: 250px;
+      border-radius: 50%;
+      background: conic-gradient(
+        #ff7f50 0% 14.28%, 
+        #6a5acd 14.28% 28.56%, 
+        #32cd32 28.56% 42.84%, 
+        #ffd700 42.84% 57.12%, 
+        #00bfff 57.12% 71.4%, 
+        #ff69b4 71.4% 85.68%, 
+        #9370db 85.68% 100%
+      );
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .roulette-wheel::before {
+      content: '';
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: white;
+      border-radius: 50%;
+      z-index: 10;
+    }
+
+    .roulette-wheel span {
+      position: absolute;
+      font-size: 12px;
+      color: white;
+      transform-origin: center;
+      text-align: center;
+      width: 50px;
+      transform: rotate(calc(var(--angle) * 1deg)) translateY(-125px) rotate(calc(var(--angle) * -1deg));
+    }
+  </style>
+</head>
+<body class="bg-gray-100 flex justify-center items-center min-h-screen">
+  <div class="flex w-full max-w-6xl bg-white shadow-lg rounded-lg overflow-hidden">
+    <!-- Daftar Nama Pegawai -->
+    <div class="w-1/2 p-6 overflow-y-auto border-r border-gray-200">
+      <h2 class="text-xl font-bold mb-4">Daftar Pegawai</h2>
+      <ul id="employee-list" class="space-y-2">
+        <!-- List Nama Pegawai Akan Ditampilkan Disini -->
+      </ul>
+    </div>
+
+    <!-- Spin Hadiah -->
+    <div class="w-1/2 p-6 text-center">
+      <h2 class="text-xl font-bold mb-4">Spin Hadiah</h2>
+      <div class="relative mx-auto">
+        <div id="roulette-wheel" class="roulette-wheel">
+          <!-- Label Hadiah -->
+          <span style="--angle: 20;">TV</span>
+          <span style="--angle: 65;">Kulkas</span>
+          <span style="--angle: 110;">Blender</span>
+          <span style="--angle: 155;">Mesin Cuci</span>
+          <span style="--angle: 200;">Setrika</span>
+          <span style="--angle: 245;">Kompor Gas</span>
+          <span style="--angle: 290;">AC</span>
+        </div>
+      </div>
+      <button id="spin-button" class="mt-6 px-6 py-2 bg-green-500 text-white font-bold rounded-lg hover:bg-green-600 transition duration-300" disabled>
+        SPIN!
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // Daftar Nama Pegawai
+    const employees = [
+      "ISNAWATI", "AGUS SARWOKO", "RISA GAYATRI", "TITIN PARTINI", "ABDUL LATIEF IRIAWAN",
+      "MUHAMMAD FAHRURRAZI", "AGUS INDAH LESTARI", "SILVIA RILDA GIYANTI", "SURIANSYAH",
+      "SYAHRIDA AMRINA", "MUHAMMAD JAINUDI", "ASTUTI", "HERMAN EFFENDI", "AKHMAD HALIDI",
+      "SAKIYO", "PADANG PAMBUDI", "MUHAMMAD IPANDY", "JAMIL PASHA", "YUNIAR SILVARANI",
+      "RUSDIANSYAH", "YUDHO PRASETYO", "THAHIR ANSYARI PUTERA", "SURIANSYAH",
+      "ANDI SETYO RAHMAT SANTOSO", "HENDY ARIFUDDIN", "JOKO NOPRIYANTO", "EDY SARWONO",
+      "DHIAN KARUNIA", "ANDIKA PUJI SANTOSO", "AGUS SUPRIANTO", "ROBY ROZALI",
+      "MUHAMMAD HANIEF", "MOHAMMAD SUAEB", "EDUARD PARDOSI", "JOKO SUTRISNO",
+      "MUHAMMAD ABDUH", "IKHSAN SETIADI", "MUHAMMAD NUR HELMI", "CAHYA REVIANA",
+      "MUHAMMAD RAHMAN HARIYADI", "RAHMAT KHAIR ACHMAD", "MUHAMMAD SAPUTRA",
+      "MUHAMMAD NOOR HINDARTO", "MUHAMMAD ERWAN NOVRIAN PUTRA", "DIKA RATNA PAMBUDI",
+      "MARCHA INDRAWAN", "MUHAMMAD FAJAR", "ALVIANIE AS`AN", "MUHAMMAD RIDHO SANTOSO",
+      "KASPUL ANWAR", "ISKANDAR", "AHMAD INDIE MUTALLIBY", "MUHAMMAD REZKI AULIA",
+      "EKA WULANDARI", "DANU EKA WARDANA", "AHMAD ZAIRULLAH REDHANI", "DIMAS AULIA RAMADHAN",
+      "UMAR ALIF AL-SYAIRI", "AHMAD MUKHAIRI", "SYARIF HIDAYAT", "KEVIN AQMAL FERNANDO"
+    ];
+
+    // Daftar Hadiah
+    const prizes = ["TV", "Kulkas", "Blender", "Mesin Cuci", "Setrika", "Kompor Gas", "AC"];
+
+    // Menampilkan Nama Pegawai di List
+    const employeeList = document.getElementById("employee-list");
+    let selectedEmployee = null;
+
+    employees.forEach((employee, index) => {
+      const li = document.createElement("li");
+      li.textContent = employee;
+      li.classList.add("text-lg", "font-medium", "text-gray-700", "cursor-pointer", "hover:bg-gray-200", "p-2", "rounded");
+      li.addEventListener("click", () => {
+        Array.from(employeeList.children).forEach(item => item.classList.remove("bg-blue-100"));
+        li.classList.add("bg-blue-100");
+        selectedEmployee = employee;
+        document.getElementById("spin-button").disabled = false;
+      });
+      employeeList.appendChild(li);
+    });
+
+    // Fungsi Spin Hadiah
+    const spinButton = document.getElementById("spin-button");
+    const rouletteWheel = document.getElementById("roulette-wheel");
+
+    spinButton.addEventListener("click", () => {
+      if (!selectedEmployee) {
+        alert("Pilih pegawai terlebih dahulu!");
+        return;
+      }
+
+      spinButton.disabled = true;
+
+      const randomIndex = Math.floor(Math.random() * prizes.length);
+      const prize = prizes[randomIndex];
+      const anglePerPrize = 360 / prizes.length;
+      const finalAngle = 360 * 5 + randomIndex * anglePerPrize;
+
+      rouletteWheel.style.transition = "transform 4s ease-out";
+      rouletteWheel.style.transform = `rotate(${finalAngle}deg)`;
+
+      setTimeout(() => {
+        rouletteWheel.style.transition = "";
+        alert(`Selamat kepada ${selectedEmployee}! Anda mendapatkan ${prize}!`);
+
+        const selectedLi = Array.from(employeeList.children).find(li => li.textContent.includes(selectedEmployee));
+        if (selectedLi) {
+          selectedLi.innerHTML = `${selectedEmployee} <span class="ml-2 text-sm font-bold text-green-500">(${prize})</span>`;
+        }
+
+        spinButton.disabled = false;
+      }, 4000);
+    });
+  </script>
+</body>
+</html>
